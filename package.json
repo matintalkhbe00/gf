@@ -1,32 +1,22 @@
 {
   "name": "my-node-project",
   "version": "1.0.0",
-  "description": "A Node.js project using TypeScript and GitHub Actions",
+  "description": "A Node.js project using TypeScript",
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "test": "echo \"No tests specified\" && exit 0",
-    "lint": "eslint src --ext .ts"
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
-    "node-fetch": "^3.3.0"  // یا نسخه‌ای که نیاز دارید
+    "node-fetch": "^3.3.0" 
   },
   "devDependencies": {
     "typescript": "^5.0.0",
-    "@types/node": "^20.0.0",
-    "eslint": "^8.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.0.0"
+    "@types/node": "^20.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/your-username/your-repo.git"
-  },
-  "keywords": [],
-  "author": "",
   "license": "ISC"
 }
