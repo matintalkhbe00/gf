@@ -26,5 +26,3 @@ jobs:
 
     - name: Run application
       run: npm start
-      env:
-        NODE_OPTIONS: '--loader ts-node/esm'

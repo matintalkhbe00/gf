@@ -4,14 +4,12 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/main.js"  
+    "start": "node dist/main.js"
   },
   "dependencies": {
-    "node-fetch": "^3.3.0"
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.4",
-    "ts-node": "^10.9.1"  
-  },
-  "type": "commonjs" 
+    "typescript": "^5.0.4"
+  }
 }
