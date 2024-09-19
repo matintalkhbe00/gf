@@ -1,6 +1,9 @@
 name: Build and Run TypeScript
 
-on: [push]
+on:
+  push:
+    branches:
+      - main  # یا هر شاخه‌ای که برای توسعه استفاده می‌کنی
 
 jobs:
   build:

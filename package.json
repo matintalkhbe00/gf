@@ -1,7 +1,7 @@
 {
   "name": "typescript-action",
   "version": "1.0.0",
-  "main": "main.ts",
+  "main": "dist/main.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js"
