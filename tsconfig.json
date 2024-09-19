@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "commonjs",
+    "module": "commonjs",  // تغییر به commonjs
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
