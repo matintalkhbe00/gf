@@ -48,7 +48,9 @@ async function handleToken(authToken) {
     }
 }
 async function makeMoney(authTokens) {
+    // Create an array of promises, one for each token
     const promises = authTokens.map(token => handleToken(token));
+    // Use Promise.all to run all promises concurrently
     await Promise.all(promises);
 }
 // List of your authorization tokens

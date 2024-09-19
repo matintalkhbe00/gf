@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-async function action(headers: HeadersInit): Promise<boolean> {
+async function action(headers: Record<string, string>): Promise<boolean> {
   const res = await fetch(
     "https://dev-api.goatsbot.xyz/missions/action/66db47e2ff88e4527783327e",
     {
@@ -13,7 +13,7 @@ async function action(headers: HeadersInit): Promise<boolean> {
   return res.status === 201;
 }
 
-async function getNextTime(headers: HeadersInit): Promise<number> {
+async function getNextTime(headers: Record<string, string>): Promise<number> {
   const res = await fetch("https://api-mission.goatsbot.xyz/missions/user", {
     headers,
   });
@@ -31,12 +31,12 @@ function delay(ms: number): Promise<void> {
 }
 
 async function handleToken(authToken: string): Promise<void> {
-  const headers = { Authorization: `Bearer ${authToken}` };
+  const headers: Record<string, string> = { Authorization: `Bearer ${authToken}` };
   let nextTime = await getNextTime(headers);
 
   while (true) {
     const now = Math.floor(Date.now() / 1000);
-
+    
     if (now >= nextTime) {
       const result = await action(headers);
       if (result) {
@@ -55,12 +55,15 @@ async function handleToken(authToken: string): Promise<void> {
 }
 
 async function makeMoney(authTokens: string[]): Promise<void> {
+  // Create an array of promises, one for each token
   const promises = authTokens.map(token => handleToken(token));
+
+  // Use Promise.all to run all promises concurrently
   await Promise.all(promises);
 }
 
 // List of your authorization tokens
-const authTokens = [
+const authTokens: string[] = [
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlN2Y2OThmZjM0YmE2YzMyYzM3ZGFmIiwiaWF0IjoxNzI2NzQ2MzgyLCJleHAiOjE3MjY4MzI3ODIsInR5cGUiOiJhY2Nlc3MifQ.2Q--9c2-dQFRACZ2_LuxH9PESpSw7DztlMFRWN1a_eM",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZkZGZiNjYxZjdmMGYxNGZmYzkxNDAyIiwiaWF0IjoxNzI2NzQ0MTQxLCJleHAiOjE3MjY4MzA1NDEsInR5cGUiOiJhY2Nlc3MifQ.ramXMlbuur_9a94xCE-xAGq5ttapynVBq9_W4yJzadU",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlN2ZhYzI2M2Y3Mzg1MGY4YjJjYTRiIiwiaWF0IjoxNzI2NzQ2NTYxLCJleHAiOjE3MjY4MzI5NjEsInR5cGUiOiJhY2Nlc3MifQ.6uxzVl-TEa0M1nofppqM6-x5owV74VxHgUhz-uYIzmQ",
