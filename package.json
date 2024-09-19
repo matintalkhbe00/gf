@@ -1,22 +1,16 @@
 {
-  "name": "my-node-project",
+  "name": "typescript-action",
   "version": "1.0.0",
-  "description": "A Node.js project using TypeScript",
-  "main": "dist/main.js",
+  "main": "main.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/main.js",
-    "test": "echo \"No tests specified\" && exit 0"
+    "start": "node dist/main.js"
   },
   "dependencies": {
-    "node-fetch": "^3.3.0" 
+    "node-fetch": "^3.3.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/node": "^20.0.0"
+    "typescript": "^5.0.4"
   },
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "license": "ISC"
+  "type": "module"
 }
