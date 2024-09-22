@@ -1,4 +1,4 @@
-async function action(headers) {
+async function action(headers: { [key: string]: string }): Promise<boolean> {
   const res = await fetch(
     "https://dev-api.goatsbot.xyz/missions/action/66db47e2ff88e4527783327e",
     {
@@ -11,7 +11,7 @@ async function action(headers) {
   return res.status === 201;
 }
 
-async function getNextTime(headers) {
+async function getNextTime(headers: { [key: string]: string }): Promise<number> {
   const res = await fetch("https://api-mission.goatsbot.xyz/missions/user", {
     headers,
   });
@@ -24,11 +24,11 @@ async function getNextTime(headers) {
   return data["SPECIAL MISSION"][0]["next_time_execute"];
 }
 
-function delay(ms) {
+function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function handleToken(authToken, phoneNumber) {
+async function handleToken(authToken: string, phoneNumber: string): Promise<void> {
   const headers = { Authorization: `Bearer ${authToken}` };
   let nextTime = await getNextTime(headers);
 
@@ -50,7 +50,7 @@ async function handleToken(authToken, phoneNumber) {
   }
 }
 
-async function makeMoney(authTokensAndPhones) {
+async function makeMoney(authTokensAndPhones: Array<{ token: string; phone: string }>): Promise<void> {
   const promises = authTokensAndPhones.map(({ token, phone }) => handleToken(token, phone));
   await Promise.all(promises);
 }
