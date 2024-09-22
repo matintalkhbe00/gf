@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-async function action(headers: { [key: string]: string }): Promise<boolean> {
+async function action(headers: Record<string, string>): Promise<boolean> {
   const res = await fetch(
     "https://dev-api.goatsbot.xyz/missions/action/66db47e2ff88e4527783327e",
     {
@@ -13,7 +13,7 @@ async function action(headers: { [key: string]: string }): Promise<boolean> {
   return res.status === 201;
 }
 
-async function getNextTime(headers: { [key: string]: string }): Promise<number> {
+async function getNextTime(headers: Record<string, string>): Promise<number> {
   const res = await fetch("https://api-mission.goatsbot.xyz/missions/user", {
     headers,
   });
@@ -31,13 +31,14 @@ function delay(ms: number): Promise<void> {
 }
 
 async function handleToken(authToken: string, phoneNumber: string): Promise<void> {
-  const headers = { Authorization: `Bearer ${authToken}` };
+  const headers: Record<string, string> = { Authorization: `Bearer ${authToken}` };
   let nextTime = await getNextTime(headers);
 
   while (true) {
     const now = Math.floor(Date.now() / 1000);
     
     if (now >= nextTime) {
+      console.log(`now ${now} , nextTime ${nextTime} `)
       const result = await action(headers);
       if (result) {
         console.log(`Success: Action to earn was successfully completed with phone number ${phoneNumber}`);
@@ -46,20 +47,21 @@ async function handleToken(authToken: string, phoneNumber: string): Promise<void
       } else {
         console.log(`Failed: Action to earn failed with phone number ${phoneNumber}`);
       }
+    } else {
+      // console.log(`Waiting: Time left for next action with phone number ${phoneNumber}: ${nextTime - now}s`);
     }
 
     await delay(1000);
   }
 }
 
-async function makeMoney(authTokensAndPhones: Array<{ token: string; phone: string }>): Promise<void> {
-  const promises = authTokensAndPhones.map(({ token, phone }) => handleToken(token, phone));
+async function makeMoney(authTokens: { token: string, phone: string }[]): Promise<void> {
+  const promises = authTokens.map(({ token, phone }) => handleToken(token, phone));
   await Promise.all(promises);
 }
 
-
-// Array of tokens and corresponding phone numbers
-const authTokensAndPhones = [
+// List of your authorization tokens and corresponding phone numbers
+const authTokens: { token: string, phone: string }[] = [
   { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZTAzZDk1NGI2OTAxNzgwMDk5ZWE5IiwiaWF0IjoxNzI2OTU1NzU2LCJleHAiOjE3MjcwNDIxNTYsInR5cGUiOiJhY2Nlc3MifQ.Ymo-gE-5qJfEuGYkJik2anEPMyKUDavC-IZ7BZWpGfQ", phone: "09045087864" },
   { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZTA0NWMxMjM0Y2ZkYTZlZDc5Yjk5IiwiaWF0IjoxNzI2OTU1ODY1LCJleHAiOjE3MjcwNDIyNjUsInR5cGUiOiJhY2Nlc3MifQ.JpWgMptAq3rU3Vf6rTPJp4354DDT5U4XDvGJHZsfL2Q", phone: "09365087864" },
   { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZTA0ZTEyYTgxMGEwYjQ1OGJjMjI1IiwiaWF0IjoxNzI2OTU1OTc0LCJleHAiOjE3MjcwNDIzNzQsInR5cGUiOiJhY2Nlc3MifQ.iQMjf7C7a89U7J5uWh3p-jY4158gFBE3UxQ-G8Yj6ys", phone: "09191493905" },
@@ -72,9 +74,9 @@ const authTokensAndPhones = [
   { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzE4YTM5YTlkNTdkOTNmMDAzODU4IiwiaWF0IjoxNzI2OTU1NTAwLCJleHAiOjE3MjcwNDE5MDAsInR5cGUiOiJhY2Nlc3MifQ.bHCpB_GRhNSmNYlkKL1kYWJa6jdAw-UeaRmDJmTS7fo", phone: "09357792770" },
   { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzE2M2E5YTlkNTdkOTNmZmJhZDcxIiwiaWF0IjoxNzI2OTU1MzExLCJleHAiOjE3MjcwNDE3MTEsInR5cGUiOiJhY2Nlc3MifQ.DNIfjqnO-x3_oanWtrKoPc5ikcoj3xBwyF0QP4UK-Ig", phone: "09036567864" },
   { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzEwNTc2M2Y3Mzg1MGY4M2ZkN2Y1IiwiaWF0IjoxNzI2OTU1MDcwLCJleHAiOjE3MjcwNDE0NzAsInR5cGUiOiJhY2Nlc3MifQ.qD5CJ1kzCms9e0Mp2ZcovkPLnGOWYnPg0ZoANvNCXl0", phone: "09197473984" }
+
 ];
 
-
-makeMoney(authTokensAndPhones);
+makeMoney(authTokens);
 
 console.log("Executed: Started...");
