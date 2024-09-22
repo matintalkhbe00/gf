@@ -1,6 +1,4 @@
-import fetch from 'node-fetch';
-
-async function action(headers: Record<string, string>): Promise<boolean> {
+async function action(headers) {
   const res = await fetch(
     "https://dev-api.goatsbot.xyz/missions/action/66db47e2ff88e4527783327e",
     {
@@ -13,7 +11,7 @@ async function action(headers: Record<string, string>): Promise<boolean> {
   return res.status === 201;
 }
 
-async function getNextTime(headers: Record<string, string>): Promise<number> {
+async function getNextTime(headers) {
   const res = await fetch("https://api-mission.goatsbot.xyz/missions/user", {
     headers,
   });
@@ -26,12 +24,12 @@ async function getNextTime(headers: Record<string, string>): Promise<number> {
   return data["SPECIAL MISSION"][0]["next_time_execute"];
 }
 
-function delay(ms: number): Promise<void> {
+function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function handleToken(authToken: string): Promise<void> {
-  const headers: Record<string, string> = { Authorization: `Bearer ${authToken}` };
+async function handleToken(authToken, phoneNumber) {
+  const headers = { Authorization: `Bearer ${authToken}` };
   let nextTime = await getNextTime(headers);
 
   while (true) {
@@ -40,46 +38,40 @@ async function handleToken(authToken: string): Promise<void> {
     if (now >= nextTime) {
       const result = await action(headers);
       if (result) {
-        console.log(`Success: Action to earn was successfully completed with token ${authToken}`);
+        console.log(`Success: Action to earn was successfully completed with phone number ${phoneNumber}`);
         nextTime = await getNextTime(headers);
-        console.log(`Success: Got new nextTime with token ${authToken}: ${nextTime}`);
+        console.log(`Success: Got new nextTime with phone number ${phoneNumber}: ${nextTime}`);
       } else {
-        console.log(`Failed: Action to earn failed with token ${authToken}`);
+        console.log(`Failed: Action to earn failed with phone number ${phoneNumber}`);
       }
-    } else {
-      // console.log(`Waiting: Time left for next action with token ${authToken}: ${nextTime - now}s`);
     }
 
     await delay(1000);
   }
 }
 
-async function makeMoney(authTokens: string[]): Promise<void> {
-  // Create an array of promises, one for each token
-  const promises = authTokens.map(token => handleToken(token));
-
-  // Use Promise.all to run all promises concurrently
+async function makeMoney(authTokensAndPhones) {
+  const promises = authTokensAndPhones.map(({ token, phone }) => handleToken(token, phone));
   await Promise.all(promises);
 }
 
-// List of your authorization tokens
-const authTokens: string[] = [
-  // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzE4YTM5YTlkNTdkOTNmMDAzODU4IiwiaWF0IjoxNzI2ODI2MzMxLCJleHAiOjE3MjY5MTI3MzEsInR5cGUiOiJhY2Nlc3MifQ.tJTEbZmVDksqgYnOa_JKl5sSBr0aRj8HkwBmg6X09O0" ,
-  // //09357792770
-  // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzE2M2E5YTlkNTdkOTNmZmJhZDcxIiwiaWF0IjoxNzI2ODI0MTEyLCJleHAiOjE3MjY5MTA1MTIsInR5cGUiOiJhY2Nlc3MifQ.EFT6obc9WINbDfxYDwcRLZfn-B5Jlg5NDJO_IDZ9P40",
-  // //09036567864
-  // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzEwNTc2M2Y3Mzg1MGY4M2ZkN2Y1IiwiaWF0IjoxNzI2ODI2OTM4LCJleHAiOjE3MjY5MTMzMzgsInR5cGUiOiJhY2Nlc3MifQ.MoV11oV77jJtglZCqM6Mfnft01nj6RL8nAqMvx7mNiE",
-  // //09197473984
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlN2Y2OThmZjM0YmE2YzMyYzM3ZGFmIiwiaWF0IjoxNzI2ODUxMDI2LCJleHAiOjE3MjY5Mzc0MjYsInR5cGUiOiJhY2Nlc3MifQ.pWBWosnL5_V6UHBj35cKDOCSev7HcGsaC_vsP1FwyFw",
-  //09964711498
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZkZGZiNjYxZjdmMGYxNGZmYzkxNDAyIiwiaWF0IjoxNzI2ODUwOTAyLCJleHAiOjE3MjY5MzczMDIsInR5cGUiOiJhY2Nlc3MifQ.3rsm1HygmW04gQY3WqJaOmQFxc2Wh8g0Ig5dubyr3F4",
-  //09912984617
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlN2ZhYzI2M2Y3Mzg1MGY4YjJjYTRiIiwiaWF0IjoxNzI2ODI3Mjg3LCJleHAiOjE3MjY5MTM2ODcsInR5cGUiOiJhY2Nlc3MifQ.z07ZG58BzZZAHVYFz_w6uc6Dg0Fo-sZzQc7BK7yTsAE",
-  // 09025967864
-
-
+// Array of tokens and corresponding phone numbers
+const authTokensAndPhones = [
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZTAzZDk1NGI2OTAxNzgwMDk5ZWE5IiwiaWF0IjoxNzI2OTU1NzU2LCJleHAiOjE3MjcwNDIxNTYsInR5cGUiOiJhY2Nlc3MifQ.Ymo-gE-5qJfEuGYkJik2anEPMyKUDavC-IZ7BZWpGfQ", phone: "09045087864" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZTA0NWMxMjM0Y2ZkYTZlZDc5Yjk5IiwiaWF0IjoxNzI2OTU1ODY1LCJleHAiOjE3MjcwNDIyNjUsInR5cGUiOiJhY2Nlc3MifQ.JpWgMptAq3rU3Vf6rTPJp4354DDT5U4XDvGJHZsfL2Q", phone: "09365087864" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZTA0ZTEyYTgxMGEwYjQ1OGJjMjI1IiwiaWF0IjoxNzI2OTU1OTc0LCJleHAiOjE3MjcwNDIzNzQsInR5cGUiOiJhY2Nlc3MifQ.iQMjf7C7a89U7J5uWh3p-jY4158gFBE3UxQ-G8Yj6ys", phone: "09191493905" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZTA2NWEyYTgxMGEwYjQ1OGQ0NWU0IiwiaWF0IjoxNzI2OTU2MTU2LCJleHAiOjE3MjcwNDI1NTYsInR5cGUiOiJhY2Nlc3MifQ.FbBFvN4f_jvpM-MHVg8jFnmBLRmhyTH9iPET2CwR6n0", phone: "09303884022" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZjQzNTc1MDIzMDkwNjNkODc4YzRhIiwiaWF0IjoxNzI2OTU2Mzc1LCJleHAiOjE3MjcwNDI3NzUsInR5cGUiOiJhY2Nlc3MifQ.uqc1Wb058HASck9aznIUiH4DrsqBy7eMOgD701NOvcs", phone: "09025967865" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlZjQ0MmU1MDIzMDkwNjNkODkwNzJmIiwiaWF0IjoxNzI2OTU2NTkwLCJleHAiOjE3MjcwNDI5OTAsInR5cGUiOiJhY2Nlc3MifQ.twyND0aNkmc-S7_JNZHkzd8AGhckDAt0-iY-WlYvOmA", phone: "09059549183" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlN2Y2OThmZjM0YmE2YzMyYzM3ZGFmIiwiaWF0IjoxNzI2OTI1OTE1LCJleHAiOjE3MjcwMTIzMTUsInR5cGUiOiJhY2Nlc3MifQ.garw41ioAstgpmAYjrWeiEuPaPPbyveDWqyBYeb93ho", phone: "09964711498" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZkZGZiNjYxZjdmMGYxNGZmYzkxNDAyIiwiaWF0IjoxNzI2OTUzNzAwLCJleHAiOjE3MjcwNDAxMDAsInR5cGUiOiJhY2Nlc3MifQ.su0rrZYXlqfHszwj8tL2T_lDsRxX2paaKxwOik4fwbY", phone: "09912984617" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlN2ZhYzI2M2Y3Mzg1MGY4YjJjYTRiIiwiaWF0IjoxNzI2OTUzODM1LCJleHAiOjE3MjcwNDAyMzUsInR5cGUiOiJhY2Nlc3MifQ.ZFZl3SbTQDDa8ZHidBepbrcPHFpINq3cqjRtc_L1qq0", phone: "09025967864" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzE4YTM5YTlkNTdkOTNmMDAzODU4IiwiaWF0IjoxNzI2OTU1NTAwLCJleHAiOjE3MjcwNDE5MDAsInR5cGUiOiJhY2Nlc3MifQ.bHCpB_GRhNSmNYlkKL1kYWJa6jdAw-UeaRmDJmTS7fo", phone: "09357792770" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzE2M2E5YTlkNTdkOTNmZmJhZDcxIiwiaWF0IjoxNzI2OTU1MzExLCJleHAiOjE3MjcwNDE3MTEsInR5cGUiOiJhY2Nlc3MifQ.DNIfjqnO-x3_oanWtrKoPc5ikcoj3xBwyF0QP4UK-Ig", phone: "09036567864" },
+  { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiNjZlYzEwNTc2M2Y3Mzg1MGY4M2ZkN2Y1IiwiaWF0IjoxNzI2OTU1MDcwLCJleHAiOjE3MjcwNDE0NzAsInR5cGUiOiJhY2Nlc3MifQ.qD5CJ1kzCms9e0Mp2ZcovkPLnGOWYnPg0ZoANvNCXl0", phone: "09197473984" }
 ];
 
-makeMoney(authTokens);
+
+makeMoney(authTokensAndPhones);
 
 console.log("Executed: Started...");
