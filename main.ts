@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 async function action(headers: { [key: string]: string }): Promise<boolean> {
   const res = await fetch(
     "https://dev-api.goatsbot.xyz/missions/action/66db47e2ff88e4527783327e",
@@ -54,6 +56,7 @@ async function makeMoney(authTokensAndPhones: Array<{ token: string; phone: stri
   const promises = authTokensAndPhones.map(({ token, phone }) => handleToken(token, phone));
   await Promise.all(promises);
 }
+
 
 // Array of tokens and corresponding phone numbers
 const authTokensAndPhones = [
